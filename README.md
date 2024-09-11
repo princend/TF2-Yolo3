@@ -7,17 +7,17 @@
 ## Usage
 
 - Requirements
-    - [Numpy == 1.19.5](http://www.numpy.org/)
+    - [Numpy == 1.26.4](http://www.numpy.org/)
     
-    - [OpenCV == 4.5.2.54](https://opencv.org/)
+    - [OpenCV == 4.10.0.84](https://opencv.org/)
     
-    - [Matplotlib == 3.1.1](https://matplotlib.org/)
+    - [Matplotlib == 3.9.2](https://matplotlib.org/)
     
-    - [TensorFlow == 2.5.0](https://www.tensorflow.org/versions/r2.0/api_docs/python/tf)
+    - [TensorFlow == 2.14.0](https://www.tensorflow.org/versions/r2.0/api_docs/python/tf)
     
-    - [TensorFlow Datasets == 4.3.0](https://www.tensorflow.org/datasets/)
+    - [TensorFlow Datasets == 4.9.6](https://www.tensorflow.org/datasets/)
     
-    - [Tensorflow Addons == 0.13.0](https://github.com/tensorflow/addons)
+    - [Tensorflow Addons == 0.22.0](https://github.com/tensorflow/addons)
 
 - DarkNet weights 轉換到 TensorFlow weights
     ```bash
@@ -49,8 +49,18 @@
 ## Results
 
 Predict by YOLO v3 original weights
+![Figure_1.png](Figure_1.png)
+![Figure_2.png](Figure_2.png)
+![Figure_3.png](Figure_3.png)
+![Figure_4.png](Figure_4.png)
+![Figure_5.png](Figure_5.png)
+![Figure_6.png](Figure_6.png)
+![Figure_7.png](Figure_7.png)
+![Figure_8.png](Figure_8.png)
+![Figure_9.png](Figure_9.png)
+![Figure_10.png](Figure_10.png)
 
-![100 Iteratives](https://raw.githubusercontent.com/KUASWoodyLIN/TF2-Yolo3/master/output_images/output_results.png)
+
 ## References
 
 - https://github.com/pjreddie/darknet

@@ -11,8 +11,8 @@ from utils import parse_fn_test, trainable_model
 
 # Load dataset
 test_data = tfds.load("voc", split=tfds.Split.TEST)
-# weight_file = 'model_data/yolo_weights.h5'      # or 'logs_yolo/models/best_xxx.h5'
-weight_file = 'logs_yolo/models/best_100.h5'
+weight_file = 'model_data/yolo_weights.h5'      # or 'logs_yolo/models/best_xxx.h5'
+# weight_file = 'logs_yolo/models/best_100.h5'
 
 if weight_file == 'model_data/yolo_weights.h5':
     # COCO weights
