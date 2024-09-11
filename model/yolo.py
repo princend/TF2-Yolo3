@@ -1,8 +1,8 @@
 import config
 from layers import YoloOutputLayer, YoloOutputBoxLayer, NMSLayer
 from model.darknet import darknet_body, darknetconv2d_bn_leaky, darknetconv2d
-from tensorflow.python.keras import layers, Model, Input
-
+from tensorflow.keras import layers
+from tensorflow.keras import Model,Input
 
 yolo_anchors = config.yolo_anchors
 yolo_tiny_anchors = config.yolo_tiny_anchors
@@ -91,7 +91,7 @@ def yolov3(input_size, anchors=yolo_anchors, num_classes=80, iou_threshold=0.5, 
 
 
 if __name__ == "__main__":
-    from tensorflow.python.keras.callbacks import TensorBoard
+    from tensorflow.keras.callbacks import TensorBoard
 
     # test yolo_v3
     model = yolov3((416, 416, 3), training=True)

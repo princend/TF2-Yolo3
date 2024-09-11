@@ -43,8 +43,8 @@ def training_model(model, callbacks, num_classes=80, step=1):
     val_data = val_data.prefetch(buffer_size=AUTOTUNE)
 
     # Training
-    optimizer = tf.keras.optimizers.Adam(lr=learning_rate)
-    model.compile(optimizer=optimizer,
+    optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+    model.compile(optimizer='Adam',
                   loss=[YoloLoss(anchors[mask], num_classes=num_classes) for mask in anchor_masks],
                   run_eagerly=False)
     model.fit(train_data,
@@ -79,9 +79,13 @@ def main():
 
     # Freeze all layers in except last layer
     trainable_model(model, trainable=False)
-    model.get_layer('conv2d_last_layer1_20').trainable = True
-    model.get_layer('conv2d_last_layer2_20').trainable = True
-    model.get_layer('conv2d_last_layer3_20').trainable = True
+
+    if model.get_layer('conv2d_last_layer1_20'):
+        model.get_layer('conv2d_last_layer1_20').trainable = True
+    if model.get_layer('conv2d_last_layer2_20'):
+        model.get_layer('conv2d_last_layer2_20').trainable = True
+    if model.get_layer('conv2d_last_layer3_20'):
+        model.get_layer('conv2d_last_layer3_20').trainable = True
 
     # 1) Training model step1
     print("Start teraining Step1")

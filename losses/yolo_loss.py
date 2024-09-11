@@ -1,6 +1,6 @@
 import tensorflow as tf
-from tensorflow.python.keras.losses import binary_crossentropy, sparse_categorical_crossentropy
 from tensorflow.python.keras.losses import LossFunctionWrapper
+from tensorflow.keras.losses import binary_crossentropy, sparse_categorical_crossentropy
 
 
 class YoloLoss(LossFunctionWrapper):

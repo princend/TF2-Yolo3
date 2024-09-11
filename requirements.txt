@@ -1,0 +1,5 @@
+tensorflow==2.14.0
+matplotlib==3.9.2
+opencv-python==4.10.0.84
+tensorflow-datasets==4.9.6
+tensorflow-addons==0.22.0

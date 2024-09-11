@@ -1,0 +1,97 @@
+import os
+import sys
+import argparse
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.layers import Conv2D, Add, ZeroPadding2D, UpSampling2D, Concatenate, LeakyReLU
+from tensorflow.keras.models import Model
+from tensorflow.keras.regularizers import l2
+from tensorflow.keras.layers import BatchNormalization
+from tensorflow.keras.layers import Input
+from model import yolov3, yolov3_tiny
+from model.darknet import resblock_body,darknetconv2d_bn_leaky
+
+def load_darknet_weights(model, weights_file):
+    # Open the weights file
+    with open(weights_file, 'rb',encoding='utf-8') as wf:
+        major, minor, revision, seen, _ = np.fromfile(wf, dtype=np.int32, count=5)
+        layers = model.layers
+        for i in range(len(layers)):
+            layer = layers[i]
+            if isinstance(layer, Model):
+                submodel = layer
+                for j, sublayer in enumerate(submodel.layers):
+                    if isinstance(sublayer, Conv2D):
+                        filters = sublayer.filters
+                        kernel_size = sublayer.kernel_size[0]
+                        input_dim = sublayer.input_shape[-1]
+
+                        # Darknet serializes Conv2D weights as: [bias/beta, [gamma, mean, variance], conv_weights]
+                        # Read the bias weights
+                        bias = np.fromfile(wf, dtype=np.float32, count=filters)
+
+                        # Check for batch normalization layer
+                        if j + 1 < len(submodel.layers) and isinstance(submodel.layers[j + 1], BatchNormalization):
+                            bn_weights = np.fromfile(wf, dtype=np.float32, count=4 * filters)
+                            bn_weights = bn_weights.reshape((4, filters))[[1, 0, 2, 3]]  # Re-order bn_weights to match Keras format
+                            submodel.layers[j + 1].set_weights(bn_weights)
+                        else:
+                            sublayer.set_weights([bias])
+
+                        # Read the convolution weights
+                        conv_shape = (filters, input_dim, kernel_size, kernel_size)
+                        conv_weights = np.fromfile(wf, dtype=np.float32, count=np.product(conv_shape))
+                        conv_weights = conv_weights.reshape(conv_shape)
+                        conv_weights = conv_weights.transpose([2, 3, 1, 0])  # Darknet shape (out_dim, in_dim, height, width)
+                        sublayer.set_weights([conv_weights])
+                        break
+            else:
+                continue
+    print(f'Loaded weights from {weights_file}')
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--weights_path', type=str, help='Path to the YOLOv3 darknet weights file.')
+    parser.add_argument('--output_path', type=str, help='Path to save the converted weights.')
+    args = parser.parse_args()
+
+    # Load YOLO model
+    yolo_model = create_yolo_model()
+    # input_size = (416, 416, 3)
+    # yolo_model =  yolov3(input_size)
+    # Load Darknet weights and save as h5
+    load_darknet_weights(yolo_model, args.weights_path)
+    yolo_model.save_weights(args.output_path)
+    print(f'Saved converted weights to {args.output_path}')
+
+
+def create_yolo_model():
+    inputs = Input(shape=(None, None, 3))
+    x = darknetconv2d_bn_leaky(inputs, 32, (3, 3))
+    
+    # 五個殘差塊，對應 YOLOv3 的骨幹結構
+    x = resblock_body(x, 64, 1)
+    x = resblock_body(x, 128, 2)
+    x = resblock_body(x, 256, 8)
+    x = resblock_body(x, 512, 8)
+    x = resblock_body(x, 1024, 4)
+    
+    # 檢測頭部，可以根據 YOLOv3 的架構進一步擴展
+    y1 = darknetconv2d_bn_leaky(x, 512, (1, 1))
+    y1 = darknetconv2d_bn_leaky(y1, 1024, (3, 3))
+    y1 = Conv2D(255, (1, 1), padding='same', activation='linear')(y1)  # 檢測層
+
+    # 上採樣 + 檢測層
+    y2 = UpSampling2D(2)(y1)
+    y2 = Concatenate()([y2, darknetconv2d_bn_leaky(x, 512, (1, 1))])
+    y2 = Conv2D(255, (1, 1), padding='same', activation='linear')(y2)
+
+    # 構建 YOLO 模型
+    model = Model(inputs, [y1, y2])
+    
+    return model
+
+if __name__ == '__main__':
+    main()
+    
+    
