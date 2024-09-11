@@ -10,7 +10,7 @@ from utils import parse_fn_test, trainable_model
 
 
 # Load dataset
-test_data = tfds.load("voc2007", split=tfds.Split.TEST)
+test_data = tfds.load("voc", split=tfds.Split.TEST)
 # weight_file = 'model_data/yolo_weights.h5'      # or 'logs_yolo/models/best_xxx.h5'
 weight_file = 'logs_yolo/models/best_100.h5'
 
@@ -26,7 +26,7 @@ else:
     if int(os.path.splitext(weight_file)[0].split('_')[-1]) <= 100:
         freeze = True
 # 每個類別使用不同顏色做標記
-colors = (plt.cm.hsv(np.linspace(0, 1, 80)) * 255).astype(np.int).tolist()
+colors = (plt.cm.hsv(np.linspace(0, 1, 80)) * 255).astype(np.int32).tolist()
 
 
 def test_and_show_result(model, test_number=10):
